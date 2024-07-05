@@ -31,9 +31,14 @@ const UpdateFileName= asyncHandler(async(req,res)=>{
         res.status(404);
         throw new Error("Contact NOT FOUND");
     }
+
+    const updateFields = {};
+    if (req.body.name) updateFields.name = req.body.name;
+    if (req.body.description) updateFields.description = req.body.description;
+
     const updatedFileName=await fileInfo.findByIdAndUpdate(
         req.params.id,
-        req.body,
+        { $set: updateFields },
         {new:true}
     );
 
@@ -71,7 +76,40 @@ const deleteFileName= asyncHandler(async(req,res)=>{
 
 });
 
+
+//@desc delete a file  by ID
+//@route DELETE/api/filesname/:id
+//@access public
+//The api should have an endpoint to retrieve file by id.
+
+
+
+// Requiring express-zip for downloading a zip file
+const zip = require('express-zip');
+
+
+const downloadFile= asyncHandler(async(req,res)=>{
+    console.log("downloading");
+    // make sure that the file existe
+    const fileName=await  fileInfo.findById(req.params.id);
+    if(!fileName){
+        res.status(404);
+        throw new Error("Contact NOT FOUND");
+    }
+
+    // Download function provided by express
+    res.download(fileName.path, fileName.name,function(err) {
+        if(err) {
+            console.log(err);
+        }
+    })
+});
+
+
+
+
+
   
 
 
-module.exports={getFileName,UpdateFileName,deleteFileName};
+module.exports={getFileName,UpdateFileName,deleteFileName,downloadFile};

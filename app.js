@@ -48,6 +48,31 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 });
 
 
+// BONUS QUESTION 
+// UPLOAD FILE ON THE CLOUD
+
+// Import the Storage class from the '@google-cloud/storage' package
+// const { Storage } = require('@google-cloud/storage');
+
+// // Define an asynchronous function to upload a file to Google Cloud Storage
+// async function uplodFileCloud(bucket,file,fileOUtputName){
+//   try{
+//     const projectID=process.env.PROJECT_ID;
+//     const keyfileName=process.env.KEYFILENAME;
+//     const storage = new Storage({projectID,keyfileName});
+
+//     const bucket =storage.bucket({bucket});
+//     await bucket.upload(file, )
+//   }catch(error){
+//     console.error("ERROR",error);
+//   }
+// }
+// (async)=>{
+//   uplodFileCloud(process.env.BUCKET_NAME,"file.txt","testCloud.txt");
+// }
+
+
+
 
 
 
