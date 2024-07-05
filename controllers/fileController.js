@@ -1,86 +1,13 @@
-// const File = require('../models/file');
-// const fs = require('fs');
-// const path = require('path');
-
-// exports.uploadFile = async (req, res) => {
-//   try {
-//     const file = req.file;
-//     const { description } = req.body;
-
-//     const fileDoc = new File({
-//       name: file.filename,
-//       size: file.size,
-//       description,
-//       mime_type: file.mimetype,
-//       path: file.path
-//     });
-
-//     await fileDoc.save();
-//     res.status(201).json({ file_id: fileDoc._id });
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to upload file' });
-//   }
-// };
-
-// exports.getFileInfo = async (req, res) => {
-//   try {
-//     const file = await File.findById(req.params.id);
-//     if (!file) return res.status(404).json({ error: 'File not found' });
-
-//     res.json(file);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to retrieve file information' });
-//   }
-// };
-
-// exports.downloadFile = async (req, res) => {
-//   try {
-//     const file = await File.findById(req.params.id);
-//     if (!file) return res.status(404).json({ error: 'File not found' });
-
-//     res.download(file.path, file.name);
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to download file' });
-//   }
-// };
-
-// exports.updateFileInfo = async (req, res) => {
-//   try {
-//     const { description } = req.body;
-//     const file = await File.findById(req.params.id);
-//     if (!file) return res.status(404).json({ error: 'File not found' });
-
-//     if (description) file.description = description;
-//     await file.save();
-
-//     res.json({ message: 'File information updated successfully' });
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to update file information' });
-//   }
-// };
-
-// exports.deleteFile = async (req, res) => {
-//   try {
-//     const file = await File.findById(req.params.id);
-//     if (!file) return res.status(404).json({ error: 'File not found' });
-
-//     fs.unlinkSync(file.path);
-//     await file.remove();
-
-//     res.json({ message: 'File deleted successfully' });
-//   } catch (err) {
-//     res.status(500).json({ error: 'Failed to delete file' });
-//   }
-// };
-
-
-
 const asyncHandler=require("express-async-handler");
 const fileInfo=require("../models/fileModel");
+
+
 
 //@desc get a file information by ID
 //@route Get/api/filesname/:id
 //@access public
+//The api should have an endpoint to retrieve file information by id.
+
 
 const getFileName= asyncHandler(async(req,res)=>{
     const fileName=await  fileInfo.findById(req.params.id);
@@ -88,18 +15,15 @@ const getFileName= asyncHandler(async(req,res)=>{
         res.status(404);
         throw new Error("Contact NOT FOUND");
     }
-    // res.status(200).json({message:`get contact for ${req.params.id}`});
     res.status(200).json(fileName);
 });
 
-// const getFileName= asyncHandler(async(req,res)=>{
-//     res.status(200).json({message:`get contact for ${req.params.id}`});
-// });
 
 
 //@desc update a file information by ID
 //@route Put/api/filesname/:id
 //@access public
+//The api should have an endpoint to update file information
 
 const UpdateFileName= asyncHandler(async(req,res)=>{
     const fileName=await  fileInfo.findById(req.params.id);
@@ -112,13 +36,42 @@ const UpdateFileName= asyncHandler(async(req,res)=>{
         req.body,
         {new:true}
     );
-    // res.status(200).json({message:"update contact for "+req.params.id});
+
     res.status(200).json(updatedFileName);
 });
 
-// const UpdateFileName= asyncHandler(async(req,res)=>{
-//     res.status(200).json({message:"update contact for "+req.params.id});
-// });
+//@desc delete a file  by ID
+//@route DELETE/api/filesname/:id
+//@access public
+//The api should have and endpoint to delete file by id.
+
+const fs = require('fs');
+const deleteFileName= asyncHandler(async(req,res)=>{
+    // make sure that the file existe
+    const fileName=await  fileInfo.findById(req.params.id);
+    if(!fileName){
+        res.status(404);
+        throw new Error("Contact NOT FOUND");
+    }
+    
+    // Delete the file from the filesystem
+    fs.unlink(fileName.path, async (err) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error deleting file' });
+        return;
+      }
+  
+     
+    });
+
+    //Delete File Informations from the data base
+    await fileInfo.deleteOne({ _id: req.params.id });
+    res.status(200).json("File deleted successfully from the data base and the server ");
+
+});
+
+  
 
 
-module.exports={getFileName,UpdateFileName};
+module.exports={getFileName,UpdateFileName,deleteFileName};
